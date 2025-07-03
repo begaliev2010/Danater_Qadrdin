@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Donat Free Fire - Яров Кадрддин</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; margin:0;}
+  h1, h2 { text-align: center; margin: 0 0 10px 0; }
+  .langs { text-align: center; margin-bottom: 20px; }
+  .langs button {
+    margin: 0 5px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    background: #007bff;
+    color: white;
+    transition: background 0.3s;
+  }
+  .langs button:hover {
+    background: #0056b3;
+  }
+  .donat-item {
+    background: white;
+    max-width: 320px;
+    margin: 12px auto;
+    padding: 16px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 7px rgba(0,0,0,0.12);
+    text-align: center;
+    user-select: none;
+  }
+  .donat-item p {
+    margin: 6px 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .btn-buy {
+    margin-top: 12px;
+    background: #28a745;
+    border: none;
+    padding: 10px 22px;
+    color: white;
+    font-weight: bold;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 16px;
+    user-select: none;
+  }
+  .btn-buy:hover {
+    background: #218838;
+  }
+  /* Modal */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 15;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background: white;
+    padding: 24px 30px 30px 30px;
+    border-radius: 12px;
+    width: 360px;
+    max-width: 95%;
+    box-sizing: border-box;
+    position: relative;
+    user-select: none;
+  }
+  .modal-content h3 {
+    margin-top: 0;
+    text-align: center;
+    font-size: 22px;
+  }
+  .modal-content label {
+    display: block;
+    margin: 14px 0 6px 0;
+    font-weight: 600;
+  }
+  .modal-content input {
+    width: 100%;
+    padding: 9px 11px;
+    font-size: 16px;
+    border: 1.7px solid #ccc;
+    border-radius: 7px;
+    box-sizing: border-box;
+  }
+  .modal-buttons {
+    margin-top: 22px;
+    text-align: center;
+  }
+  .modal-buttons button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 16px;
+    user-select: none;
+    transition: background 0.3s;
+  }
+  .btn-whatsapp {
+    background: #25d366;
+    color: white;
+  }
+  .btn-whatsapp:hover {
+    background: #1da851;
+  }
+  .btn-telegram {
+    background: #0088cc;
+    color: white;
+  }
+  .btn-telegram:hover {
+    background: #006799;
+  }
+  .btn-close {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    background: #ddd;
+    border: none;
+    font-weight: bold;
+    font-size: 20px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.3s;
+  }
+  .btn-close:hover {
+    background: #bbb;
+  }
+  /* Responsive */
+  @media (max-width: 400px) {
+    .modal-content {
+      width: 90%;
+      padding: 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>🎮 Donat Free Fire</h1>
+<h2 id="headerName"># Яров Кадрддин ✅</h2>
+
+<div class="langs">
+  <button onclick="setLanguage('ru')">Русский</button>
+  <button onclick="setLanguage('en')">English</button>
+  <button onclick="setLanguage('tj')">Тоҷикӣ</button>
+</div>
+
+<div id="donatList"></div>
+
+<!-- Modal -->
+<div id="modal" class="modal" aria-hidden="true">
+  <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="btn-close" onclick="closeModal()" aria-label="Close modal">×</button>
+    <h3 id="modalTitle">Покупка</h3>
+    <form id="orderForm" onsubmit="return false;">
+      <label for="inputAmount" id="labelAmount">Количество алмазов / услуги:</label>
+      <input type="text" id="inputAmount" name="amount" readonly />
+
+      <label for="inputID" id="labelID">ID игрока:</label>
+      <input type="text" id="inputID" name="id" placeholder="" required autocomplete="off" />
+
+      <label for="inputPhone" id="labelPhone">Телефон (с кодом):</label>
+      <input type="tel" id="inputPhone" name="phone" placeholder="+992..." required pattern="^\+?\d{9,15}$" autocomplete="off" />
+
+      <div class="modal-buttons">
+        <button type="button" class="btn-whatsapp" onclick="sendOrder('whatsapp')">Отправить в WhatsApp</button>
+        <button type="button" class="btn-telegram" onclick="sendOrder('telegram')">Отправить в Telegram</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const yourWhatsappNumber = '992938050328'; // Sizning WhatsApp raqamingiz (kodisiz)
+  const yourTelegramUsername = 'ff_tajik_brat'; // Sizning Telegram username (kodisiz)
+
+  const translations = {
+    ru: {
+      headerName: '# Яров Кадрддин ✅',
+      modalTitle: 'Покупка',
+      labelAmount: 'Количество алмазов / услуги:',
+      labelID: 'ID игрока:',
+      labelPhone: 'Телефон (с кодом):',
+      placeholderID: 'Введите ваш ID',
+      placeholderPhone: '+992...',
+      btnBuy: 'Купить',
+      alertID: 'Пожалуйста, введите ID.',
+      alertPhone: 'Пожалуйста, введите корректный номер телефона с кодом.',
+      alertTelegram:
+        'В Telegram по ссылке перейдите в чат и отправьте сообщение.',
+      items: [
+        {type:'diamond', amount: 100, bonus: 5, price: '8.99 сомонӣ'},
+        {type:'diamond', amount: 200, bonus: 10, price: '16.99 сомонӣ'},
+        {type:'diamond', amount: 310, bonus: 16, price: '26.99 сомонӣ'},
+        {type:'diamond', amount: 520, bonus: 26, price: '44.99 сомонӣ'},
+        {type:'diamond', amount: 1060, bonus: 53, price: '89.99 сомонӣ'},
+        {type:'diamond', amount: 2180, bonus: 218, price: '179.99 сомонӣ'},
+        {type:'diamond', amount: 5600, bonus: 560, price: '449.99 сомонӣ'},
+
+        {type:'voucher', name:'Ваучер lite', amount: 90, price: '4.99 сомонӣ'},
+        {type:'voucher', name:'Ваучер ҳафтаина', amount: 450, price: '14.99 сомонӣ'},
+        {type:'voucher', name:'Ваучер моҳона', amount: 2600, price: '104.99 сомонӣ'},
+
+        {type:'service', name:'EVO ACCESS 3D MP40-G18', price: '7.99 сомонӣ'},
+        {type:'service', name:'EVO ACCESS 7D MP40-G18', price: '11.99 сомонӣ'},
+        {type:'service', name:'EVO ACCESS 30D MP40-G18', price: '32.99 сомонӣ'},
+      ],
+    },
+    en: {
+      headerName: '# Yarov Qadrdin ✅',
+      modalTitle: 'Purchase',
+      labelAmount: 'Amount / Service:',
+      labelID: 'Player ID:',
+      labelPhone: 'Phone number (with code):',
+      placeholderID: 'Enter your ID',
+      placeholderPhone: '+992...',
+      btnBuy: 'Buy',
+      alertID: 'Please enter your ID.',
+      alertPhone: 'Please enter a valid phone number with code.',
+      alertTelegram:
+        'In Telegram, please go to chat and send the message.',
+      items: [
+        {type:'diamond', amount: 100, bonus: 5, price: '8.99 somoni'},
+        {type:'diamond', amount: 200, bonus: 10, price: '16.99 somoni'},
+        {type:'diamond', amount: 310, bonus: 16, price: '26.99 somoni'},
+        {type:'diamond', amount: 520, bonus: 26, price: '44.99 somoni'},
+        {type:'diamond', amount: 1060, bonus: 53, price: '89.99 somoni'},
+        {type:'diamond', amount: 2180, bonus: 218, price: '179.99 somoni'},
+        {type:'diamond', amount: 5600, bonus: 560, price: '449.99 somoni'},
+
+        {type:'voucher', name:'Voucher lite', amount: 90, price: '4.99 somoni'},
+        {type:'voucher', name:'Weekly Voucher', amount: 450, price: '14.99 somoni'},
+        {type:'voucher', name:'Monthly Voucher', amount: 2600, price: '104.99 somoni'},
+
+        {type:'service', name:'EVO ACCESS 3D MP40-G18', price: '7.99 somoni'},
+        {type:'service', name:'EVO ACCESS 7D MP40-G18', price: '11.99 somoni'},
+        {type:'service', name:'EVO ACCESS 30D MP40-G18', price: '32.99 somoni'},
+      ],
+    },
+    tj: {
+      headerName: '# Яров Қадрддин ✅',
+      modalTitle: 'Харид',
+      labelAmount: 'Миқдор / Хизмат:',
+      labelID: 'ID бозингар:',
+      labelPhone: 'Телефон (бо код):',
+      placeholderID: 'ID-и худро ворид кунед',
+      placeholderPhone: '+992...',
+      btnBuy: 'Харидан',
+      alertID: 'Лутфан ID-ро ворид кунед.',
+      alertPhone: 'Лутфан рақами телефонро бо коди дуруст ворид кунед.',
+      alertTelegram:
+        'Дар Telegram, лутфан ба чат рафта паёмро ирсол кунед.',
+      items: [
+        {type:'diamond', amount: 100, bonus: 5, price: '8.99 сомонӣ'},
+        {type:'diamond', amount: 200, bonus: 10, price: '16.99 сомонӣ'},
+        {type:'diamond', amount: 310, bonus: 16, price: '26.99 сомонӣ'},
+        {type:'diamond', amount: 520, bonus: 26, price: '44.99 сомонӣ'},
+        {type:'diamond', amount: 1060, bonus: 53, price: '89.99 сомонӣ'},
+        {type:'diamond', amount: 2180, bonus: 218, price: '179.99 сомонӣ'},
+        {type:'diamond', amount: 5600, bonus: 560, price: '449.99 сомонӣ'},
+
+        {type:'voucher', name:'Ваучер lite', amount: 90, price: '4.99 сомонӣ'},
+        {type:'voucher', name:'Ваучер ҳафтаина', amount: 450, price: '14.99 сомонӣ'},
+        {type:'voucher', name:'Ваучер моҳона', amount: 2600, price: '104.99 сомонӣ'},
+
+        {type:'service', name:'EVO ACCESS 3D MP40-G18', price: '7.99 сомонӣ'},
+        {type:'service', name:'EVO ACCESS 7D MP40-G18', price: '11.99 сомонӣ'},
+        {type:'service', name:'EVO ACCESS 30D MP40-G18', price: '32.99 сомонӣ'},
+      ],
+    },
+  };
+
+  let currentLang = 'ru'; // default til
+  const donatList = document.getElementById('donatList');
+  const headerName = document.getElementById('headerName');
+  const modal = document.getElementById('modal');
+  const modalTitle = document.getElementById('modalTitle');
+  const labelAmount = document.getElementById('labelAmount');
+  const labelID = document.getElementById('labelID');
+  const labelPhone = document.getElementById('labelPhone');
+  const inputAmount = document.getElementById('inputAmount');
+  const inputID = document.getElementById('inputID');
+  const inputPhone = document.getElementById('inputPhone');
+
+  // Funksiya: sayt matnlarini tilga qarab o‘zgartirish
+  function setLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang];
+    headerName.textContent = t.headerName;
+    modalTitle.textContent = t.modalTitle;
+    labelAmount.textContent = t.labelAmount;
+    labelID.textContent = t.labelID;
+    labelPhone.textContent = t.labelPhone;
+    inputID.placeholder = t.placeholderID;
+    inputPhone.placeholder = t.placeholderPhone;
+
+    renderDonatItems();
+    closeModal();
+  }
+
+  // Funksiya: donat paketlarini chiqarish
+  function renderDonatItems() {
+    const t = translations[currentLang];
+    donatList.innerHTML = '';
+
+    t.items.forEach((item, idx) => {
+      const div = document.createElement('div');
+      div.className = 'donat-item';
+
+      let titleText = '';
+      if(item.type === 'diamond') {
+        titleText = `${item.amount} алмаз – 🎁 +${item.bonus} бонус – ${item.price}`;
+      } else if(item.type === 'voucher') {
+        titleText = `${item.name} – 🎁 ${item.amount} алмаз – ${item.price}`;
+      } else if(item.type === 'service') {
+        titleText = `${item.name} – ${item.price}`;
+      }
+
+      div.innerHTML = `
+        <p>${titleText}</p>
+        <button class="btn-buy" onclick="openModal(${idx})">${t.btnBuy}</button>
+      `;
+      donatList.appendChild(div);
+    });
+  }
+
+  // Modalni ochish, paket ma'lumotini joylash
+  function openModal(index) {
+    const t = translations[currentLang];
+    const item = translations[currentLang].items[index];
+
+    let amountText = '';
+    if(item.type === 'diamond') {
+      amountText = `${item.amount} алмаз (+${item.bonus} бонус)`;
+    } else if(item.type === 'voucher') {
+      amountText = `${item.name} – ${item.amount} алмаз`;
+    } else if(item.type === 'service') {
+      amountText = `${item.name}`;
+    }
+
+    inputAmount.value = amountText;
+    inputID.value = '';
+    inputPhone.value = '';
+
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  // Modalni yopish
+  function closeModal() {
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  // WhatsApp yoki Telegramga buyurtmani yuborish
+  function sendOrder(platform) {
+    const t = translations[currentLang];
+    const amount = inputAmount.value.trim();
+    const id = inputID.value.trim();
+    const phone = inputPhone.value.trim();
+
+    if(id === '') {
+      alert(t.alertID);
+      return;
+    }
+    if(!/^\+?\d{9,15}$/.test(phone)) {
+      alert(t.alertPhone);
+      return;
+    }
+
+    // Tayyor xabar matni
+    let message = `📌 Заказ от ${t.headerName}\n`;
+    message += `💎 Пакет: ${amount}\n`;
+    message += `🆔 ID игрока: ${id}\n`;
+    message += `📱 Телефон: ${phone}\n\n`;
+    message += `Спасибо за ваш заказ!`;
+
+    let url = '';
+
+    if(platform === 'whatsapp') {
+      // WhatsApp link uchun raqamni "+"siz va faqat raqam sifatida kiritamiz
+      const waNumber = yourWhatsappNumber.startsWith('+' ) ? yourWhatsappNumber.slice(1) : yourWhatsappNumber;
+      const waMsg = encodeURIComponent(message);
+      url = `https://wa.me/${waNumber}?text=${waMsg}`;
+    } else if(platform === 'telegram') {
+      // Telegram uchun username bilan link va xabarni ko‘rsatamiz
+      // Telegram bot emas, faqat chat ochish uchun username
+      const tgUsername = yourTelegramUsername.replace('@','');
+      const tgMsg = encodeURIComponent(message);
+      // Telegramda faqat username ga xabar yuborish uchun havola emas, shuning uchun faqat alert bilan ko'rsatamiz
+      alert(t.alertTelegram + `\n\n@${tgUsername}\n\n${message}`);
+      return;
+    }
+
+    window.open(url, '_blank');
+    closeModal();
+  }
+
+  // Boshlanishida rus tilida yuklash
+  setLanguage('ru');
+</script>
+
+</body>
+</html>
